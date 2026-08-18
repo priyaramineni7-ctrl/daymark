@@ -1,0 +1,19 @@
+.root {
+    -daymark-background: #f6f7f9;
+    -daymark-surface: #ffffff;
+    -daymark-text: #17202a;
+    -daymark-muted: #657181;
+    -daymark-accent: #5268d8;
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-size: 14px;
+}
+.app-root {
+    -fx-background-color: -daymark-background;
+    -fx-padding: 32px;
+}
+
+.foundation-title {
+    -fx-text-fill: -daymark-text;
+    -fx-font-size: 24px;
+    -fx-font-weight: 600;
+}

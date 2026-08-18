@@ -1,3 +1,14 @@
+target/
+.m2/
 *.class
-tasks.txt
-.build/
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+.idea/
+.vscode/
+*.iml
+
+.DS_Store
+Thumbs.db

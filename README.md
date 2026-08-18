@@ -1,36 +1,52 @@
-# Task Manager Prototype
+# Daymark
 
-This repository contains the original console prototype that later became **Daymark**, a Java desktop task-planning application.
+Daymark is a calm, today-focused desktop task planner built with Java 21, JavaFX, Maven, and SQLite. The project is being developed as a one-week portfolio application with an emphasis on maintainable architecture and thoughtful interaction design.
 
-The prototype was built to practice core Java fundamentals: object-oriented design, collections, file input/output, user input, and basic application control flow. It runs entirely in the terminal and stores tasks in a local text file.
+## Day 1 foundation
 
-## Features
+The current milestone provides:
 
-- Add a task with a title, description, due date, and priority.
-- View all saved tasks in a numbered list.
-- Mark a task as completed.
-- Delete a task by its list number.
-- Save tasks to `tasks.txt` and reload them the next time the program runs.
+- an immutable task domain model;
+- a repository abstraction that keeps persistence out of the UI and domain;
+- automatic, idempotent SQLite schema initialization;
+- a minimal launchable JavaFX shell; and
+- automated domain and database foundation tests.
 
-## Run the prototype
+The original terminal implementation is preserved in [`legacy-console`](legacy-console) for comparison. Its compiled files and local `tasks.txt` data are intentionally not part of the new application.
 
-From the repository root:
+## Requirements
+
+- JDK 21
+- Maven 3.6.3 or newer
+
+## Build and test
 
 ```shell
-cd TaskManager
-javac *.java
-java Main
+mvn clean test
 ```
 
-Choose an option from the numbered menu and follow the terminal prompts. Use **Save and Exit** to persist changes.
+## Run
 
-## Project structure
+```shell
+mvn javafx:run
+```
 
-- `Main.java` provides the terminal menu and reads user input.
-- `Task.java` represents an individual task.
-- `TaskManager.java` manages the in-memory task list.
-- `FileHandler.java` loads and saves task data.
+On Windows, Daymark stores its database at `%LOCALAPPDATA%\Daymark\daymark.db`. If `LOCALAPPDATA` is unavailable, it falls back to `~/.daymark/daymark.db`. No database is written inside the repository.
 
-## Prototype limitations
+## Architecture
 
-This is intentionally the original learning-stage version. Dates and priorities are stored as text, input validation is minimal, and comma-separated persistence does not safely handle commas inside task content. These limitations provide the starting point for the application's later architectural and user-interface improvements.
+```text
+JavaFX application
+       |
+TaskRepository contract
+       |
+SQLite infrastructure
+       |
+Local Daymark database
+```
+
+The domain package does not depend on JavaFX or JDBC. Application code will depend on the `TaskRepository` interface so the persistence implementation remains replaceable and testable.
+
+## Planned next steps
+
+Day 2 adds the SQLite repository implementation, application services, validation, and CRUD/query tests. Later milestones add the Today, All Tasks, and Completed experiences.
