@@ -1,52 +1,96 @@
 # Daymark
 
-Daymark is a simple, clean looking desktop task planner 
+Daymark is a desktop task manager designed to make daily planning feel simple and focused. It is built with JavaFX and stores data locally with SQLite, keeping the application fast, private, and usable without an internet connection.
 
-## Day 1 foundation
+The project began as a terminal-based Java program and is now being rebuilt as a full desktop application. The original console version remains in [`legacy-console`](legacy-console) as a record of where the project started.
 
-The current milestone provides:
+## Current capabilities
 
-- an immutable task domain model;
-- a repository abstraction that keeps persistence out of the UI and domain;
-- automatic, idempotent SQLite schema initialization;
-- a minimal launchable JavaFX shell; and
-- automated domain and database foundation tests.
+The application currently includes the core technical foundation:
 
-The original terminal implementation is preserved in [`legacy-console`](legacy-console) for comparison. Its compiled files and local `tasks.txt` data are intentionally not part of the new application.
+- A launchable JavaFX desktop shell
+- An immutable task domain model
+- Priority and task-status types
+- A repository interface that separates application logic from storage
+- Automatic SQLite database and schema initialization
+- Local database safety settings, including foreign keys and a busy timeout
+- Automated tests for the domain model and database setup
 
-## Requirements
+Task-management screens and workflows are still under development.
+
+## Technology
+
+- **Java 21** — application language and runtime
+- **JavaFX 21** — desktop user interface
+- **SQLite** — local data storage
+- **Maven** — dependency management and build tooling
+- **JUnit** — automated testing
+
+## Getting started
+
+### Requirements
 
 - JDK 21
 - Maven 3.6.3 or newer
 
-## Build and test
-
-```shell
-mvn clean test
-```
-
-## Run
+### Run the application
 
 ```shell
 mvn javafx:run
 ```
 
-On Windows, Daymark stores its database at `%LOCALAPPDATA%\Daymark\daymark.db`. If `LOCALAPPDATA` is unavailable, it falls back to `~/.daymark/daymark.db`. No database is written inside the repository.
+### Run the tests
+
+```shell
+mvn clean test
+```
 
 ## Architecture
 
+Daymark keeps its domain, persistence, and interface concerns separate:
+
 ```text
-JavaFX application
+JavaFX interface
        |
-TaskRepository contract
+Application services
        |
-SQLite infrastructure
+TaskRepository
        |
-Local Daymark database
+SQLite persistence
 ```
 
-The domain package does not depend on JavaFX or JDBC. Application code will depend on the `TaskRepository` interface so the persistence implementation remains replaceable and testable.
+The domain model has no dependency on JavaFX or JDBC. Higher-level application code works through the `TaskRepository` contract instead of depending directly on SQLite, which keeps the business logic easier to test and allows the storage implementation to evolve independently.
 
-## Planned next steps
+The main source packages are organized by responsibility:
 
-Day 2 adds the SQLite repository implementation, application services, validation, and CRUD/query tests. Later milestones add the Today, All Tasks, and Completed experiences.
+```text
+com.daymark.app          Application entry point
+com.daymark.domain       Task model and domain types
+com.daymark.repository   Persistence contracts
+com.daymark.persistence  SQLite configuration and schema setup
+```
+
+## Local data
+
+On Windows, Daymark stores its database at:
+
+```text
+%LOCALAPPDATA%\Daymark\daymark.db
+```
+
+If `LOCALAPPDATA` is unavailable, the application falls back to:
+
+```text
+~/.daymark/daymark.db
+```
+
+The database is kept outside the repository so personal task data cannot be committed accidentally.
+
+## Planned features
+
+- Create and edit tasks with due dates and priorities
+- A focused view for overdue tasks and tasks due today
+- Search, filtering, and sorting
+- Complete, restore, and delete workflows
+- Clear empty, validation, and error states
+- Keyboard-friendly navigation
