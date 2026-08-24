@@ -1,6 +1,6 @@
 # Daymark
 
-Daymark is a calm, today-focused desktop task planner built with Java 21, JavaFX, Maven, and SQLite. The project is being developed as a one-week portfolio application with an emphasis on maintainable architecture and thoughtful interaction design.
+Daymark is a simple, clean looking desktop task planner 
 
 ## Day 1 foundation
 
