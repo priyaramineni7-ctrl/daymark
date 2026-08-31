@@ -6,17 +6,20 @@ The project began as a terminal-based Java program and is now being rebuilt as a
 
 ## Current capabilities
 
-The application currently includes the core technical foundation:
+The application currently includes:
 
-- A launchable JavaFX desktop shell
+- A polished JavaFX dashboard designed around daily planning
+- Today, upcoming, active, and completed task views
+- Search, task counts, clear empty states, and keyboard shortcuts
+- Create, edit, complete, restore, and delete workflows
 - An immutable task domain model
 - Priority and task-status types
 - A repository interface that separates application logic from storage
+- Complete SQLite persistence for creating, reading, updating, and deleting tasks
+- A validated application service for task creation, editing, completion, restoration, and deletion
 - Automatic SQLite database and schema initialization
 - Local database safety settings, including foreign keys and a busy timeout
-- Automated tests for the domain model and database setup
-
-Task-management screens and workflows are still under development.
+- Automated tests across the domain, service, presentation, repository, and database layers
 
 ## Technology
 
@@ -68,6 +71,8 @@ com.daymark.app          Application entry point
 com.daymark.domain       Task model and domain types
 com.daymark.repository   Persistence contracts
 com.daymark.persistence  SQLite configuration and schema setup
+com.daymark.service      Validation and task workflows
+com.daymark.ui           JavaFX views and presentation logic
 ```
 
 ## Local data
@@ -86,11 +91,9 @@ If `LOCALAPPDATA` is unavailable, the application falls back to:
 
 The database is kept outside the repository so personal task data cannot be committed accidentally.
 
-## Planned features
+## Ideas for future development
 
-- Create and edit tasks with due dates and priorities
-- A focused view for overdue tasks and tasks due today
-- Search, filtering, and sorting
-- Complete, restore, and delete workflows
-- Clear empty, validation, and error states
-- Keyboard-friendly navigation
+- User-selectable themes and accessibility preferences
+- Recurring tasks and lightweight tags
+- Custom sorting and saved filters
+- Import and export tools

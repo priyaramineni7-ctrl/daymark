@@ -2,13 +2,13 @@ package com.daymark.app;
 
 import com.daymark.persistence.DatabaseManager;
 import com.daymark.persistence.PersistenceException;
+import com.daymark.persistence.SQLiteTaskRepository;
+import com.daymark.service.TaskService;
+import com.daymark.ui.TaskDashboard;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -19,8 +19,9 @@ public final class DaymarkApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        DatabaseManager databaseManager = DatabaseManager.forDefaultLocation();
         try {
-            DatabaseManager.forDefaultLocation().initialize();
+            databaseManager.initialize();
         } catch (PersistenceException exception) {
             LOGGER.log(System.Logger.Level.ERROR, "Daymark database startup failed", exception);
             showStartupFailure();
@@ -28,24 +29,21 @@ public final class DaymarkApplication extends Application {
             return;
         }
 
-        Label title = new Label("Daymark foundation is ready");
-        title.getStyleClass().add("foundation-title");
+        TaskService taskService = new TaskService(new SQLiteTaskRepository(databaseManager));
+        TaskDashboard dashboard = new TaskDashboard(taskService);
 
-        StackPane root = new StackPane(title);
-        root.setAlignment(Pos.CENTER);
-        root.getStyleClass().add("app-root");
-
-        Scene scene = new Scene(root, 1_000, 700);
+        Scene scene = new Scene(dashboard, 1_120, 760);
         scene.getStylesheets().add(
                 Objects.requireNonNull(
                         DaymarkApplication.class.getResource("/com/daymark/ui/daymark.css"),
                         "Daymark stylesheet is missing"
                 ).toExternalForm()
         );
+        dashboard.installShortcuts(scene);
 
         stage.setTitle("Daymark");
-        stage.setMinWidth(760);
-        stage.setMinHeight(520);
+        stage.setMinWidth(900);
+        stage.setMinHeight(620);
         stage.setScene(scene);
         stage.show();
     }
