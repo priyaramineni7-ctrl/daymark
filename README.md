@@ -34,8 +34,9 @@ and priority. The search box filters the current view by title and description.
 
 On Windows: `%LOCALAPPDATA%\Daymark\daymark.db`. If `LOCALAPPDATA` isn't set it falls back to
 `~/.daymark/daymark.db`. Nothing is written inside the repo, so task data can't be committed
-by accident. The database runs in WAL mode, so you'll see `daymark.db-wal` and `daymark.db-shm`
-alongside it while the app is open.
+by accident. The database is in WAL mode. SQLite writes `daymark.db-wal` and `daymark.db-shm`
+next to it while a connection is open — Daymark opens one per operation and closes it again, so
+in practice they appear and vanish rather than sitting there.
 
 ## Known rough edges
 
