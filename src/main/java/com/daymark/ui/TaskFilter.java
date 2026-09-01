@@ -8,8 +8,8 @@ import java.time.LocalDate;
 /** The task collections exposed by the dashboard navigation. */
 public enum TaskFilter {
     TODAY("Today", "Tasks that need your attention today"),
-    ALL("All tasks", "Everything in one place"),
-    COMPLETED("Completed", "A record of what you have finished");
+    ACTIVE("Active", "Everything you still need to do"),
+    COMPLETED("Completed", "Tasks you have finished");
 
     private final String displayName;
     private final String description;
@@ -32,7 +32,7 @@ public enum TaskFilter {
             case TODAY -> task.status() == TaskStatus.ACTIVE
                     && task.dueDate() != null
                     && !task.dueDate().isAfter(today);
-            case ALL -> task.status() == TaskStatus.ACTIVE;
+            case ACTIVE -> task.status() == TaskStatus.ACTIVE;
             case COMPLETED -> task.status() == TaskStatus.COMPLETED;
         };
     }

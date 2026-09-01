@@ -121,7 +121,7 @@ public final class TaskDashboard extends BorderPane {
     private String navigationLabel(TaskFilter filter) {
         return switch (filter) {
             case TODAY -> "●   Today";
-            case ALL -> "☰   All tasks";
+            case ACTIVE -> "☰   Active";
             case COMPLETED -> "✓   Completed";
         };
     }
@@ -233,7 +233,7 @@ public final class TaskDashboard extends BorderPane {
     private String emptyTitle() {
         return switch (currentFilter) {
             case TODAY -> "Your day is clear";
-            case ALL -> "Start with one meaningful task";
+            case ACTIVE -> "Start with one meaningful task";
             case COMPLETED -> "Finished tasks will appear here";
         };
     }
@@ -241,7 +241,7 @@ public final class TaskDashboard extends BorderPane {
     private String emptyDescription() {
         return switch (currentFilter) {
             case TODAY -> "No overdue tasks and nothing due today.";
-            case ALL -> "Capture what matters, then take it one step at a time.";
+            case ACTIVE -> "Capture what matters, then take it one step at a time.";
             case COMPLETED -> "Complete a task to build your progress history.";
         };
     }
@@ -343,7 +343,7 @@ public final class TaskDashboard extends BorderPane {
                         draft.dueDate(),
                         draft.priority()
                 );
-                currentFilter = TaskFilter.ALL;
+                currentFilter = TaskFilter.ACTIVE;
                 updateNavigationState();
                 showFeedback("Task created");
                 refreshTasks();

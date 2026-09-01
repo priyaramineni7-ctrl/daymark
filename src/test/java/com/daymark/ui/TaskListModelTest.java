@@ -34,7 +34,7 @@ class TaskListModelTest {
     }
 
     @Test
-    void allAndCompletedViewsHaveSeparateMeanings() {
+    void activeViewExcludesCompletedTasks() {
         Task unscheduled = task("Inbox", null, Priority.LOW, TaskStatus.ACTIVE, 1);
         Task futureDated = task("Plan", TODAY.plusDays(3), Priority.MEDIUM, TaskStatus.ACTIVE, 2);
         Task completed = task("Done", TODAY.minusDays(1), Priority.HIGH, TaskStatus.COMPLETED, 3);
@@ -42,7 +42,7 @@ class TaskListModelTest {
 
         assertEquals(
                 List.of(futureDated, unscheduled),
-                TaskListModel.select(tasks, TaskFilter.ALL, "", TODAY)
+                TaskListModel.select(tasks, TaskFilter.ACTIVE, "", TODAY)
         );
         assertEquals(List.of(completed), TaskListModel.select(tasks, TaskFilter.COMPLETED, "", TODAY));
     }
@@ -62,7 +62,7 @@ class TaskListModelTest {
 
         List<Task> selected = TaskListModel.select(
                 List.of(noMatch, descriptionMatch, titleMatch),
-                TaskFilter.ALL,
+                TaskFilter.ACTIVE,
                 " report ",
                 TODAY
         );
@@ -78,7 +78,7 @@ class TaskListModelTest {
 
         assertEquals(
                 List.of(high, low, later),
-                TaskListModel.select(List.of(later, low, high), TaskFilter.ALL, "", TODAY)
+                TaskListModel.select(List.of(later, low, high), TaskFilter.ACTIVE, "", TODAY)
         );
     }
 
@@ -86,7 +86,7 @@ class TaskListModelTest {
     void selectionResultIsUnmodifiable() {
         List<Task> selected = TaskListModel.select(
                 List.of(task("Task", null, Priority.LOW, TaskStatus.ACTIVE, 1)),
-                TaskFilter.ALL,
+                TaskFilter.ACTIVE,
                 "",
                 TODAY
         );
