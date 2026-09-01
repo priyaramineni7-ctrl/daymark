@@ -27,11 +27,6 @@ public final class DatabaseManager {
             )
             """;
 
-    private static final String CREATE_STATUS_DUE_DATE_INDEX = """
-            CREATE INDEX IF NOT EXISTS idx_tasks_status_due_date
-            ON tasks (status, due_date)
-            """;
-
     private final Path databasePath;
 
     public DatabaseManager(Path databasePath) {
@@ -63,7 +58,6 @@ public final class DatabaseManager {
             try (Connection connection = openConnection();
                  Statement statement = connection.createStatement()) {
                 statement.execute(CREATE_TASKS_TABLE);
-                statement.execute(CREATE_STATUS_DUE_DATE_INDEX);
             }
         } catch (IOException | SQLException exception) {
             throw new PersistenceException(

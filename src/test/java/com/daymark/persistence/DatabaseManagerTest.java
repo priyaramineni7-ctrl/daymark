@@ -20,7 +20,7 @@ class DatabaseManagerTest {
     Path temporaryDirectory;
 
     @Test
-    void createsDatabaseSchemaAndIndex() throws SQLException {
+    void createsDatabaseSchema() throws SQLException {
         Path databasePath = temporaryDirectory.resolve("nested/daymark.db");
         DatabaseManager databaseManager = new DatabaseManager(databasePath);
 
@@ -28,7 +28,6 @@ class DatabaseManagerTest {
 
         assertTrue(Files.isRegularFile(databasePath));
         assertEquals(1, countSchemaObjects(databaseManager, "table", "tasks"));
-        assertEquals(1, countSchemaObjects(databaseManager, "index", "idx_tasks_status_due_date"));
     }
 
     @Test
@@ -41,7 +40,6 @@ class DatabaseManagerTest {
         databaseManager.initialize();
 
         assertEquals(1, countSchemaObjects(databaseManager, "table", "tasks"));
-        assertEquals(1, countSchemaObjects(databaseManager, "index", "idx_tasks_status_due_date"));
     }
 
     @Test
