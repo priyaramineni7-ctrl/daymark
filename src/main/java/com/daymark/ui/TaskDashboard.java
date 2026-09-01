@@ -233,16 +233,16 @@ public final class TaskDashboard extends BorderPane {
     private String emptyTitle() {
         return switch (currentFilter) {
             case TODAY -> "Your day is clear";
-            case ACTIVE -> "Start with one meaningful task";
-            case COMPLETED -> "Finished tasks will appear here";
+            case ACTIVE -> "Nothing active";
+            case COMPLETED -> "Nothing completed yet";
         };
     }
 
     private String emptyDescription() {
         return switch (currentFilter) {
             case TODAY -> "No overdue tasks and nothing due today.";
-            case ACTIVE -> "Capture what matters, then take it one step at a time.";
-            case COMPLETED -> "Complete a task to build your progress history.";
+            case ACTIVE -> "New tasks show up here.";
+            case COMPLETED -> "Tasks you finish show up here.";
         };
     }
 

@@ -71,9 +71,6 @@ public final class TaskEditorDialog extends Dialog<TaskDraft> {
         Label heading = new Label(editing ? "Make a few changes" : "What needs to get done?");
         heading.getStyleClass().add("dialog-heading");
 
-        Label helper = new Label("Keep it clear and actionable. You can always refine it later.");
-        helper.getStyleClass().add("dialog-helper");
-
         titleField.setPromptText("e.g. Submit database assignment");
         titleField.getStyleClass().add("editor-title");
 
@@ -102,7 +99,6 @@ public final class TaskEditorDialog extends Dialog<TaskDraft> {
                 10,
                 eyebrow,
                 heading,
-                helper,
                 spacer(4),
                 fieldGroup("Title", titleField),
                 fieldGroup("Notes", descriptionField),

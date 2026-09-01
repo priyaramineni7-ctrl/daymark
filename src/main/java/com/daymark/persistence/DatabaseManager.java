@@ -13,6 +13,10 @@ import java.util.Objects;
 public final class DatabaseManager {
     private static final int BUSY_TIMEOUT_MILLIS = 5_000;
 
+    // SQLite has no UUID, date or timestamp type, so ids, due dates and instants all go
+    // in as TEXT. Keeps rows readable in a SQLite browser while debugging, which has been
+    // worth more than the bytes a BLOB id would save. The CHECK constraints duplicate what
+    // TaskService validates - they are the backstop, not the error message users see.
     private static final String CREATE_TASKS_TABLE = """
             CREATE TABLE IF NOT EXISTS tasks (
                 id TEXT PRIMARY KEY,

@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-/** Pure presentation logic for filtering and ordering task cards. */
+// Static and JavaFX-free on purpose. Everything that decides which tasks appear and in
+// what order lives here, so TaskListModelTest can cover it without starting a toolkit -
+// the dashboard itself has no test, and this is the part worth having one for.
 public final class TaskListModel {
     // Undated tasks sink to the bottom; within a day, HIGH comes first. Priority is
     // declared LOW..HIGH so reverseOrder gives us the descending order we want.

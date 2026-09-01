@@ -4,7 +4,6 @@ import com.daymark.domain.Priority;
 
 import java.time.LocalDate;
 
-/** User-entered task values returned by the editor dialog. */
 public record TaskDraft(
         String title,
         String description,
