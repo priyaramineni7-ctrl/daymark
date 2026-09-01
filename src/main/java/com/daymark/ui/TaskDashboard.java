@@ -84,8 +84,8 @@ public final class TaskDashboard extends BorderPane {
 
         Region leftSpacer = new Region();
         Region rightSpacer = new Region();
-        HBox.setHgrow(leftSpacer, javafx.scene.layout.Priority.ALWAYS);
-        HBox.setHgrow(rightSpacer, javafx.scene.layout.Priority.ALWAYS);
+        growHorizontally(leftSpacer);
+        growHorizontally(rightSpacer);
 
         HBox topBar = new HBox(20, brand, leftSpacer, searchField, rightSpacer, addButton);
         topBar.setAlignment(Pos.CENTER_LEFT);
@@ -109,7 +109,7 @@ public final class TaskDashboard extends BorderPane {
         }
 
         Region spacer = new Region();
-        VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+        growVertically(spacer);
 
         VBox sidebar = new VBox(12, planningLabel, navigation, spacer);
         sidebar.getStyleClass().add("sidebar");
@@ -134,7 +134,7 @@ public final class TaskDashboard extends BorderPane {
         resultCount.getStyleClass().add("result-count");
 
         Region titleSpacer = new Region();
-        HBox.setHgrow(titleSpacer, javafx.scene.layout.Priority.ALWAYS);
+        growHorizontally(titleSpacer);
         HBox headingRow = new HBox(12, viewTitle, titleSpacer, resultCount);
         headingRow.setAlignment(Pos.BASELINE_LEFT);
 
@@ -152,7 +152,7 @@ public final class TaskDashboard extends BorderPane {
         hideFeedback();
 
         VBox workspace = new VBox(18, heading, feedback, scrollPane);
-        VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
+        growVertically(scrollPane);
         workspace.getStyleClass().add("workspace");
         return workspace;
     }
@@ -260,7 +260,7 @@ public final class TaskDashboard extends BorderPane {
         }
 
         VBox text = new VBox(7, title);
-        HBox.setHgrow(text, javafx.scene.layout.Priority.ALWAYS);
+        growHorizontally(text);
         if (task.description() != null) {
             Label description = new Label(task.description());
             description.setWrapText(true);
@@ -422,6 +422,16 @@ public final class TaskDashboard extends BorderPane {
     private void hideFeedback() {
         feedback.setVisible(false);
         feedback.setManaged(false);
+    }
+
+    // Our own Priority shadows javafx.scene.layout.Priority, so every grow call had to
+    // spell out the full package name. These wrap it once instead of six times.
+    private static void growHorizontally(Node node) {
+        HBox.setHgrow(node, javafx.scene.layout.Priority.ALWAYS);
+    }
+
+    private static void growVertically(Node node) {
+        VBox.setVgrow(node, javafx.scene.layout.Priority.ALWAYS);
     }
 
     private void showError(String heading, RuntimeException exception) {
