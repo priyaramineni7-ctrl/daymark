@@ -1,99 +1,63 @@
 # Daymark
 
-Daymark is a desktop task manager designed to make daily planning feel simple and focused. It is built with JavaFX and stores data locally with SQLite, keeping the application fast, private, and usable without an internet connection.
+A desktop task planner built with Java 21, JavaFX and SQLite. Tasks live in a local database
+file — there is no account, no sync, and nothing leaves the machine.
 
-The project began as a terminal-based Java program and is now being rebuilt as a full desktop application. The original console version remains in [`legacy-console`](legacy-console) as a record of where the project started.
+It started as the terminal program still kept in [`legacy-console`](legacy-console). That
+version stored tasks as comma-separated lines, so any title containing a comma came back
+mangled on the next load. Fixing that properly is what turned it into this.
 
-## Current capabilities
-
-The application currently includes:
-
-- A polished JavaFX dashboard designed around daily planning
-- Today, active, and completed task views
-- Search and clear empty states
-- Create, edit, complete, restore, and delete workflows
-- An immutable task domain model
-- Priority and task-status types
-- A repository interface that separates application logic from storage
-- Complete SQLite persistence for creating, reading, updating, and deleting tasks
-- A validated application service for task creation, editing, completion, restoration, and deletion
-- Automatic SQLite database and schema initialization
-- Local database safety settings, including foreign keys and a busy timeout
-- Automated tests across the domain, service, presentation, repository, and database layers
-
-## Technology
-
-- **Java 21** — application language and runtime
-- **JavaFX 21** — desktop user interface
-- **SQLite** — local data storage
-- **Maven** — dependency management and build tooling
-- **JUnit** — automated testing
-
-## Getting started
-
-### Requirements
+## Requirements
 
 - JDK 21
 - Maven 3.6.3 or newer
 
-### Run the application
+## Run
 
 ```shell
 mvn javafx:run
 ```
 
-### Run the tests
+## Test
 
 ```shell
 mvn clean test
 ```
 
-## Architecture
+## What it does
 
-Daymark keeps its domain, persistence, and interface concerns separate:
+Three views in the sidebar — Today (overdue plus due today), Active, and Completed. You can
+create, edit, complete, restore and delete tasks, each with an optional description, due date
+and priority. The search box filters the current view by title and description.
 
-```text
-JavaFX interface
-       |
-Application services
-       |
-TaskRepository
-       |
-SQLite persistence
-```
+## Where the data lives
 
-The domain model has no dependency on JavaFX or JDBC. Higher-level application code works through the `TaskRepository` contract instead of depending directly on SQLite, which keeps the business logic easier to test and allows the storage implementation to evolve independently.
+On Windows: `%LOCALAPPDATA%\Daymark\daymark.db`. If `LOCALAPPDATA` isn't set it falls back to
+`~/.daymark/daymark.db`. Nothing is written inside the repo, so task data can't be committed
+by accident. The database runs in WAL mode, so you'll see `daymark.db-wal` and `daymark.db-shm`
+alongside it while the app is open.
 
-The main source packages are organized by responsibility:
+## Known rough edges
+
+- **Everything loads at once.** `findAll()` reads every task and the filtering, search and
+  sorting all happen in memory in `TaskListModel`. That's fine for a personal task list and
+  would need real SQL queries somewhere in the low thousands.
+- **Delete is permanent.** There's a confirmation dialog and that's it — no undo, no trash.
+- **The dashboard has no tests.** The presentation logic is pulled out into `TaskListModel`
+  precisely so it can be tested without a JavaFX toolkit, but the wiring in `TaskDashboard`
+  itself is only ever checked by hand.
+- **One theme.** The palette is hard-coded in `daymark.css`; there's no dark mode.
+
+## Layout
 
 ```text
 com.daymark.app          Application entry point
 com.daymark.domain       Task model and domain types
-com.daymark.repository   Persistence contracts
-com.daymark.persistence  SQLite configuration and schema setup
+com.daymark.repository   Persistence contract
+com.daymark.persistence  SQLite schema, connections, repository implementation
 com.daymark.service      Validation and task workflows
 com.daymark.ui           JavaFX views and presentation logic
 ```
 
-## Local data
-
-On Windows, Daymark stores its database at:
-
-```text
-%LOCALAPPDATA%\Daymark\daymark.db
-```
-
-If `LOCALAPPDATA` is unavailable, the application falls back to:
-
-```text
-~/.daymark/daymark.db
-```
-
-The database is kept outside the repository so personal task data cannot be committed accidentally.
-
-## Ideas for future development
-
-- User-selectable themes and accessibility preferences
-- Recurring tasks and lightweight tags
-- Custom sorting and saved filters
-- Import and export tools
+The domain package doesn't depend on JavaFX or JDBC, and everything above the repository works
+through the `TaskRepository` interface rather than talking to SQLite directly.
