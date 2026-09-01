@@ -9,8 +9,8 @@ The project began as a terminal-based Java program and is now being rebuilt as a
 The application currently includes:
 
 - A polished JavaFX dashboard designed around daily planning
-- Today, upcoming, active, and completed task views
-- Search, task counts, clear empty states, and keyboard shortcuts
+- Today, active, and completed task views
+- Search and clear empty states
 - Create, edit, complete, restore, and delete workflows
 - An immutable task domain model
 - Priority and task-status types

@@ -20,9 +20,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -49,9 +46,6 @@ public final class TaskDashboard extends BorderPane {
     private final Label viewTitle = new Label();
     private final Label viewDescription = new Label();
     private final Label resultCount = new Label();
-    private final Label activeCount = new Label("0");
-    private final Label completedCount = new Label("0");
-    private final Label dueCount = new Label("0");
     private final Label feedback = new Label();
     private final Map<TaskFilter, Button> navigationButtons = new EnumMap<>(TaskFilter.class);
 
@@ -65,17 +59,6 @@ public final class TaskDashboard extends BorderPane {
         setLeft(createSidebar());
         setCenter(createWorkspace());
         refreshTasks();
-    }
-
-    public void installShortcuts(javafx.scene.Scene scene) {
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
-                this::showCreateDialog
-        );
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN),
-                searchField::requestFocus
-        );
     }
 
     private Node createTopBar() {
@@ -121,24 +104,10 @@ public final class TaskDashboard extends BorderPane {
             navigation.getChildren().add(button);
         }
 
-        Label overviewLabel = new Label("OVERVIEW");
-        overviewLabel.getStyleClass().add("sidebar-section-label");
-
-        VBox overview = new VBox(
-                9,
-                metricRow("Active", activeCount, "metric-active"),
-                metricRow("Due today", dueCount, "metric-due"),
-                metricRow("Completed", completedCount, "metric-completed")
-        );
-        overview.getStyleClass().add("overview-card");
-
-        Label shortcut = new Label("⌘/Ctrl + N  New task\n⌘/Ctrl + F  Search");
-        shortcut.getStyleClass().add("shortcut-hint");
-
         Region spacer = new Region();
         VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
-        VBox sidebar = new VBox(12, planningLabel, navigation, overviewLabel, overview, spacer, shortcut);
+        VBox sidebar = new VBox(12, planningLabel, navigation, spacer);
         sidebar.getStyleClass().add("sidebar");
         sidebar.setPrefWidth(238);
         updateNavigationState();
@@ -148,21 +117,9 @@ public final class TaskDashboard extends BorderPane {
     private String navigationLabel(TaskFilter filter) {
         return switch (filter) {
             case TODAY -> "●   Today";
-            case UPCOMING -> "○   Upcoming";
             case ALL -> "☰   All tasks";
             case COMPLETED -> "✓   Completed";
         };
-    }
-
-    private Node metricRow(String name, Label value, String styleClass) {
-        Label label = new Label(name);
-        label.getStyleClass().add("metric-label");
-        value.getStyleClass().addAll("metric-value", styleClass);
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-        HBox row = new HBox(8, label, spacer, value);
-        row.setAlignment(Pos.CENTER_LEFT);
-        return row;
     }
 
     private Node createWorkspace() {
@@ -218,24 +175,10 @@ public final class TaskDashboard extends BorderPane {
     private void refreshTasks() {
         try {
             allTasks = taskService.findAllTasks();
-            updateMetrics();
             renderTasks();
         } catch (PersistenceException exception) {
             showError("Tasks could not be loaded", exception);
         }
-    }
-
-    private void updateMetrics() {
-        LocalDate today = LocalDate.now();
-        long active = allTasks.stream().filter(task -> task.status() == TaskStatus.ACTIVE).count();
-        long completed = allTasks.stream().filter(task -> task.status() == TaskStatus.COMPLETED).count();
-        long due = allTasks.stream()
-                .filter(task -> task.status() == TaskStatus.ACTIVE)
-                .filter(task -> task.dueDate() != null && !task.dueDate().isAfter(today))
-                .count();
-        activeCount.setText(Long.toString(active));
-        completedCount.setText(Long.toString(completed));
-        dueCount.setText(Long.toString(due));
     }
 
     private void renderTasks() {
@@ -287,7 +230,6 @@ public final class TaskDashboard extends BorderPane {
     private String emptyTitle() {
         return switch (currentFilter) {
             case TODAY -> "Your day is clear";
-            case UPCOMING -> "Nothing scheduled yet";
             case ALL -> "Start with one meaningful task";
             case COMPLETED -> "Finished tasks will appear here";
         };
@@ -296,7 +238,6 @@ public final class TaskDashboard extends BorderPane {
     private String emptyDescription() {
         return switch (currentFilter) {
             case TODAY -> "No overdue tasks and nothing due today.";
-            case UPCOMING -> "Add a due date to start planning ahead.";
             case ALL -> "Capture what matters, then take it one step at a time.";
             case COMPLETED -> "Complete a task to build your progress history.";
         };

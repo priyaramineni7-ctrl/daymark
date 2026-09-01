@@ -39,8 +39,6 @@ public final class DaymarkApplication extends Application {
                         "Daymark stylesheet is missing"
                 ).toExternalForm()
         );
-        dashboard.installShortcuts(scene);
-
         stage.setTitle("Daymark");
         stage.setMinWidth(900);
         stage.setMinHeight(620);

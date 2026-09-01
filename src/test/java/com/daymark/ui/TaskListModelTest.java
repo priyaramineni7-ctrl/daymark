@@ -34,14 +34,16 @@ class TaskListModelTest {
     }
 
     @Test
-    void eachNavigationViewHasASeparateMeaning() {
+    void allAndCompletedViewsHaveSeparateMeanings() {
         Task unscheduled = task("Inbox", null, Priority.LOW, TaskStatus.ACTIVE, 1);
-        Task upcoming = task("Plan", TODAY.plusDays(3), Priority.MEDIUM, TaskStatus.ACTIVE, 2);
+        Task futureDated = task("Plan", TODAY.plusDays(3), Priority.MEDIUM, TaskStatus.ACTIVE, 2);
         Task completed = task("Done", TODAY.minusDays(1), Priority.HIGH, TaskStatus.COMPLETED, 3);
-        List<Task> tasks = List.of(unscheduled, upcoming, completed);
+        List<Task> tasks = List.of(unscheduled, futureDated, completed);
 
-        assertEquals(List.of(upcoming), TaskListModel.select(tasks, TaskFilter.UPCOMING, "", TODAY));
-        assertEquals(List.of(upcoming, unscheduled), TaskListModel.select(tasks, TaskFilter.ALL, "", TODAY));
+        assertEquals(
+                List.of(futureDated, unscheduled),
+                TaskListModel.select(tasks, TaskFilter.ALL, "", TODAY)
+        );
         assertEquals(List.of(completed), TaskListModel.select(tasks, TaskFilter.COMPLETED, "", TODAY));
     }
 

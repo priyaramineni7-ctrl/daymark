@@ -110,34 +110,6 @@
     -fx-effect: dropshadow(gaussian, rgba(38, 43, 40, 0.05), 7, 0, 0, 2);
 }
 
-.overview-card {
-    -fx-padding: 14px;
-    -fx-background-color: rgba(255, 255, 255, 0.55);
-    -fx-background-radius: 10px;
-}
-
-.metric-label { -fx-text-fill: -daymark-muted; -fx-font-size: 13px; }
-
-.metric-value {
-    -fx-min-width: 24px;
-    -fx-min-height: 24px;
-    -fx-alignment: center;
-    -fx-background-radius: 12px;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-}
-
-.metric-active { -fx-background-color: #dce9e3; -fx-text-fill: #315c4c; }
-.metric-due { -fx-background-color: #f2dfcf; -fx-text-fill: #8b5428; }
-.metric-completed { -fx-background-color: #e3e3e1; -fx-text-fill: #666a70; }
-
-.shortcut-hint {
-    -fx-padding: 8px 10px 0 10px;
-    -fx-text-fill: #96938c;
-    -fx-font-size: 11px;
-    -fx-line-spacing: 5px;
-}
-
 .workspace {
     -fx-padding: 34px 42px 30px 42px;
     -fx-background-color: -daymark-canvas;
