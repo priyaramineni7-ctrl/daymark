@@ -6,6 +6,7 @@ import com.daymark.domain.TaskStatus;
 import com.daymark.persistence.PersistenceException;
 import com.daymark.service.TaskService;
 import com.daymark.service.TaskValidationException;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -26,6 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import javafx.util.Duration;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -47,6 +49,7 @@ public final class TaskDashboard extends BorderPane {
     private final Label viewDescription = new Label();
     private final Label resultCount = new Label();
     private final Label feedback = new Label();
+    private final PauseTransition feedbackTimer = new PauseTransition(Duration.seconds(4));
     private final Map<TaskFilter, Button> navigationButtons = new EnumMap<>(TaskFilter.class);
 
     private List<Task> allTasks = List.of();
@@ -58,6 +61,7 @@ public final class TaskDashboard extends BorderPane {
         setTop(createTopBar());
         setLeft(createSidebar());
         setCenter(createWorkspace());
+        feedbackTimer.setOnFinished(event -> hideFeedback());
         refreshTasks();
     }
 
@@ -145,8 +149,7 @@ public final class TaskDashboard extends BorderPane {
         scrollPane.getStyleClass().add("task-scroll");
 
         feedback.getStyleClass().add("feedback-banner");
-        feedback.setVisible(false);
-        feedback.setManaged(false);
+        hideFeedback();
 
         VBox workspace = new VBox(18, heading, feedback, scrollPane);
         VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
@@ -411,6 +414,14 @@ public final class TaskDashboard extends BorderPane {
         feedback.setText(message);
         feedback.setManaged(true);
         feedback.setVisible(true);
+        // playFromStart, not play: finishing two tasks quickly used to let the first
+        // timer fire partway through the second message.
+        feedbackTimer.playFromStart();
+    }
+
+    private void hideFeedback() {
+        feedback.setVisible(false);
+        feedback.setManaged(false);
     }
 
     private void showError(String heading, RuntimeException exception) {
