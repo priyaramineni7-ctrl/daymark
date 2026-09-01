@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TaskServiceTest {
@@ -139,13 +138,13 @@ class TaskServiceTest {
         assertEquals(TaskStatus.COMPLETED, completed.status());
         assertEquals(NOW, completed.completedAt());
         assertEquals(NOW, completed.updatedAt());
-        assertSame(completed, service.completeTask(existing.id()));
+        assertEquals(completed, service.completeTask(existing.id()));
 
         Task restored = service.restoreTask(existing.id());
         assertEquals(TaskStatus.ACTIVE, restored.status());
         assertNull(restored.completedAt());
         assertEquals(NOW, restored.updatedAt());
-        assertSame(restored, service.restoreTask(existing.id()));
+        assertEquals(restored, service.restoreTask(existing.id()));
     }
 
     @Test

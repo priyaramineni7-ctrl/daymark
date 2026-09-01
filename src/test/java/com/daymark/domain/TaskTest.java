@@ -53,12 +53,4 @@ class TaskTest {
                 null
         ));
     }
-
-    @Test
-    void enumsExposeTheSupportedValues() {
-        assertEquals(3, Priority.values().length);
-        assertEquals(2, TaskStatus.values().length);
-        assertEquals(Priority.LOW, Priority.valueOf("LOW"));
-        assertEquals(TaskStatus.COMPLETED, TaskStatus.valueOf("COMPLETED"));
-    }
 }

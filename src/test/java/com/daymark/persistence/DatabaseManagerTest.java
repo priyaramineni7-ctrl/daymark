@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -71,13 +72,15 @@ class DatabaseManagerTest {
             String type,
             String name
     ) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM sqlite_master WHERE type = '%s' AND name = '%s'"
-                .formatted(type, name);
+        String sql = "SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?";
         try (Connection connection = databaseManager.openConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            resultSet.next();
-            return resultSet.getInt(1);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, type);
+            statement.setString(2, name);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                resultSet.next();
+                return resultSet.getInt(1);
+            }
         }
     }
 
