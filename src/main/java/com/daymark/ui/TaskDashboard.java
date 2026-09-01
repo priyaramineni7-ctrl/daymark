@@ -390,7 +390,9 @@ public final class TaskDashboard extends BorderPane {
 
     private void confirmDelete(Task task) {
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.initOwner(getScene().getWindow());
+        if (getScene() != null) {
+            confirmation.initOwner(getScene().getWindow());
+        }
         confirmation.setTitle("Delete task");
         confirmation.setHeaderText("Delete “" + task.title() + "”?");
         confirmation.setContentText("This action cannot be undone.");
