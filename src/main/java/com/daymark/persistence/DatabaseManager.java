@@ -77,7 +77,7 @@ public final class DatabaseManager {
         try {
             Connection connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
             try (Statement statement = connection.createStatement()) {
-                statement.execute("PRAGMA foreign_keys = ON");
+                statement.execute("PRAGMA journal_mode = WAL");
                 statement.execute("PRAGMA busy_timeout = " + BUSY_TIMEOUT_MILLIS);
             } catch (SQLException configurationFailure) {
                 connection.close();

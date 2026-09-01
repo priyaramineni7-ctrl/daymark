@@ -55,7 +55,7 @@ class DatabaseManagerTest {
     }
 
     @Test
-    void configuredConnectionsEnableForeignKeysAndBusyTimeout() throws SQLException {
+    void connectionsUseWalAndABusyTimeout() throws SQLException {
         DatabaseManager databaseManager = new DatabaseManager(
                 temporaryDirectory.resolve("daymark.db")
         );
@@ -63,7 +63,7 @@ class DatabaseManagerTest {
 
         try (Connection connection = databaseManager.openConnection();
              Statement statement = connection.createStatement()) {
-            assertEquals(1, pragmaValue(statement, "foreign_keys"));
+            assertEquals("wal", stringPragma(statement, "journal_mode"));
             assertEquals(5_000, pragmaValue(statement, "busy_timeout"));
         }
     }
@@ -87,6 +87,13 @@ class DatabaseManagerTest {
         try (ResultSet resultSet = statement.executeQuery("PRAGMA " + pragma)) {
             resultSet.next();
             return resultSet.getInt(1);
+        }
+    }
+
+    private String stringPragma(Statement statement, String pragma) throws SQLException {
+        try (ResultSet resultSet = statement.executeQuery("PRAGMA " + pragma)) {
+            resultSet.next();
+            return resultSet.getString(1);
         }
     }
 }
