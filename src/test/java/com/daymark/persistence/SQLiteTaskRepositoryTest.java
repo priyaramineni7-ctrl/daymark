@@ -14,6 +14,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SQLiteTaskRepositoryTest {
+    // JUnit gives each test its own folder, keeping test data away from personal tasks.
     @TempDir Path directory;
     private DatabaseManager database;
     private SQLiteTaskRepository repository;
@@ -29,6 +30,7 @@ class SQLiteTaskRepositoryTest {
     void savesEveryFieldAndLoadsThroughANewRepository() {
         Task task = task(1, true);
         assertEquals(task, repository.insert(task));
+        // Read through a fresh instance to check that the task was actually persisted.
         var reopened = new SQLiteTaskRepository(database);
         assertEquals(task, reopened.findById(task.id()).orElseThrow());
     }
@@ -46,6 +48,7 @@ class SQLiteTaskRepositoryTest {
         assertTrue(repository.findAll().isEmpty());
         Task first = task(1, false);
         Task second = task(2, false);
+        // Both timestamps are equal. Insert backwards to exercise the ID tie-breaker.
         repository.insert(second);
         repository.insert(first);
         assertEquals(List.of(first, second), repository.findAll());
@@ -55,6 +58,7 @@ class SQLiteTaskRepositoryTest {
     @Test
     void updatesAllFieldsIncludingClearingOptionalValues() {
         repository.insert(task(1, true));
+        // Reuse the ID but clear the optional fields, so old values can't slip through.
         Task updated = task(1, false);
         assertEquals(updated, repository.update(updated));
         assertEquals(List.of(updated), repository.findAll());
@@ -83,6 +87,7 @@ class SQLiteTaskRepositoryTest {
     @Test
     void wrapsMalformedStoredDates() throws Exception {
         repository.insert(task(1, false));
+        // Write bad data directly: a Task's LocalDate can't represent an invalid date.
         try (var connection = database.openConnection();
              var statement = connection.prepareStatement("UPDATE tasks SET due_date = ? WHERE id = ?")) {
             statement.setString(1, "invalid-date");
@@ -95,6 +100,7 @@ class SQLiteTaskRepositoryTest {
 
     @Test
     void wrapsConnectionFailures() {
+        // The missing parent folder makes opening this database fail without touching the real one.
         var unavailable = new SQLiteTaskRepository(new DatabaseManager(directory.resolve("missing/tasks.db")));
         assertThrows(PersistenceException.class, unavailable::findAll);
     }

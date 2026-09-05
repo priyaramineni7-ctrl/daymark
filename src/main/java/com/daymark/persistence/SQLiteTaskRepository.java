@@ -44,8 +44,10 @@ public final class SQLiteTaskRepository implements TaskRepository {
 
     private Task save(Task task, String sql) {
         Objects.requireNonNull(task);
+        // Each operation owns its connection, so callers don't have to manage JDBC resources.
         try (var connection = database.openConnection();
              var statement = connection.prepareStatement(sql)) {
+            // Insert and update use the same parameter order, with the ID last.
             statement.setString(1, task.title());
             nullableText(statement, 2, task.description());
             nullableText(statement, 3, task.dueDate());
@@ -61,6 +63,7 @@ public final class SQLiteTaskRepository implements TaskRepository {
             }
             return task;
         } catch (SQLException exception) {
+            // Keep the original cause for debugging without exposing JDBC to the service layer.
             throw new PersistenceException("Could not save task " + task.id(), exception);
         }
     }
@@ -72,6 +75,7 @@ public final class SQLiteTaskRepository implements TaskRepository {
              var statement = connection.prepareStatement("SELECT * FROM tasks WHERE id = ?")) {
             statement.setString(1, id.toString());
             try (var rows = statement.executeQuery()) {
+                // Not finding an ID is a normal lookup result, not a database failure.
                 return rows.next() ? Optional.of(readTask(rows)) : Optional.empty();
             }
         } catch (SQLException exception) {
@@ -89,6 +93,7 @@ public final class SQLiteTaskRepository implements TaskRepository {
             while (rows.next()) {
                 tasks.add(readTask(rows));
             }
+            // Return a snapshot; changing this list shouldn't suggest that stored tasks changed.
             return List.copyOf(tasks);
         } catch (SQLException exception) {
             throw new PersistenceException("Could not load tasks", exception);
@@ -101,6 +106,7 @@ public final class SQLiteTaskRepository implements TaskRepository {
         try (var connection = database.openConnection();
              var statement = connection.prepareStatement("DELETE FROM tasks WHERE id = ?")) {
             statement.setString(1, id.toString());
+            // Zero deleted rows is fine: the requested task is already gone.
             statement.executeUpdate();
         } catch (SQLException exception) {
             throw new PersistenceException("Could not delete task " + id, exception);
@@ -111,6 +117,7 @@ public final class SQLiteTaskRepository implements TaskRepository {
         try {
             String due = row.getString("due_date");
             String completed = row.getString("completed_at");
+            // These two dates are optional, so only parse them when a value was stored.
             return new Task(
                     UUID.fromString(row.getString("id")), row.getString("title"),
                     row.getString("description"), due == null ? null : LocalDate.parse(due),
@@ -120,12 +127,14 @@ public final class SQLiteTaskRepository implements TaskRepository {
                     Instant.parse(row.getString("updated_at")),
                     completed == null ? null : Instant.parse(completed));
         } catch (IllegalArgumentException | java.time.DateTimeException | NullPointerException exception) {
+            // A bad stored date or enum should be reported as a storage problem too.
             throw new PersistenceException("Stored task data is invalid", exception);
         }
     }
 
     private void nullableText(PreparedStatement statement, int index, Object value) throws SQLException {
         if (value == null) {
+            // Use SQL NULL rather than an empty string that date parsing can't read back.
             statement.setNull(index, Types.VARCHAR);
         } else {
             statement.setString(index, value.toString());
