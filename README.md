@@ -47,6 +47,17 @@ Local Daymark database
 
 The domain package does not depend on JavaFX or JDBC. Application code will depend on the `TaskRepository` interface so the persistence implementation remains replaceable and testable.
 
+## Task storage
+
+`SQLiteTaskRepository` implements saving, loading, updating, and deleting tasks.
+Queries use prepared statements, and storage failures are reported through
+`PersistenceException`. Updating a missing task fails; deleting a missing task
+is harmless. Task lists use creation time and ID for a consistent order.
+
+Repository tests use a temporary database, so running them does not change your
+personal tasks. Run the full suite with `mvn clean test`.
+
 ## Planned next steps
 
-Day 2 adds the SQLite repository implementation, application services, validation, and CRUD/query tests. Later milestones add the Today, All Tasks, and Completed experiences.
+Next comes the application service for validation and task status changes, followed
+by the Today, All Tasks, and Completed screens.
