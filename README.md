@@ -59,5 +59,10 @@ personal tasks. Run the full suite with `mvn clean test`.
 
 ## Planned next steps
 
-Next comes the application service for validation and task status changes, followed
+Task creation is available through `TaskService`. It trims titles and notes,
+requires a title and priority, and creates active tasks with generated IDs and
+timestamps. Titles allow up to 100 characters and notes up to 500. Due dates are
+optional; past dates are allowed for overdue tasks.
+
+Next comes task editing and status changes in the service, followed
 by the Today, All Tasks, and Completed screens.

@@ -9,7 +9,7 @@ import java.util.UUID;
  * Immutable domain representation of a task.
  *
  * <p>Description, due date, and completion time may be {@code null}. Workflow
- * validation belongs to the application service introduced in the next milestone.</p>
+ * validation belongs to the application service.</p>
  */
 public record Task(
         UUID id,
