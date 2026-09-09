@@ -34,16 +34,27 @@ public final class DatabaseManager {
 
     private final Path databasePath;
 
+    /**
+     * Creates a manager for the given database location.
+     * The path is converted to an absolute, normalized path.
+     */
     public DatabaseManager(Path databasePath) {
         this.databasePath = Objects.requireNonNull(databasePath, "databasePath must not be null")
                 .toAbsolutePath()
                 .normalize();
     }
 
+    /**
+     * Returns a database manager using Daymark's normal local application-data location.
+     */
     public static DatabaseManager forDefaultLocation() {
         return new DatabaseManager(defaultDatabasePath());
     }
 
+    /**
+     * Chooses the platform's local application-data location, with a home-directory
+     * fallback when LOCALAPPDATA is unavailable.
+     */
     public static Path defaultDatabasePath() {
         String localAppData = System.getenv("LOCALAPPDATA");
         if (localAppData != null && !localAppData.isBlank()) {
@@ -57,6 +68,10 @@ public final class DatabaseManager {
         return databasePath;
     }
 
+    /**
+     * Creates the database directory, tables, and indexes if they do not already exist.
+     * This method can safely be called more than once.
+     */
     public void initialize() {
         try {
             createParentDirectory();
@@ -73,6 +88,10 @@ public final class DatabaseManager {
         }
     }
 
+    /**
+     * Opens a configured SQLite connection.
+     * Each caller owns and must close the returned connection.
+     */
     public Connection openConnection() {
         try {
             Connection connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);

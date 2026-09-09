@@ -134,7 +134,7 @@ public final class SQLiteTaskRepository implements TaskRepository {
 
     private void nullableText(PreparedStatement statement, int index, Object value) throws SQLException {
         if (value == null) {
-            // Use SQL NULL rather than an empty string that date parsing can't read back.
+            // Store missing optional values as SQL NULL so they remain null when read back.
             statement.setNull(index, Types.VARCHAR);
         } else {
             statement.setString(index, value.toString());

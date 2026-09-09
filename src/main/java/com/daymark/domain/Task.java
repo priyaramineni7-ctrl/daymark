@@ -6,10 +6,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Immutable domain representation of a task.
+ * Immutable domain representation of a task, including its content, schedule,
+ * priority, lifecycle status, and creation or completion timestamps.
  *
- * <p>Description, due date, and completion time may be {@code null}. Workflow
- * validation belongs to the application service introduced in the next milestone.</p>
+ * <p>A task always has an identity, title, priority, status, and timestamps.
+ * Its description and due date are optional, and {@code completedAt} is set
+ * only when the task is completed.</p>
  */
 public record Task(
         UUID id,
