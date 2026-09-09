@@ -25,7 +25,7 @@ public final class TaskService {
 
     public TaskService(TaskRepository repository, Clock clock) {
         this.repository = Objects.requireNonNull(repository, "repository must not be null");
-        // Tests can supply a fixed clock without changing how production creates tasks.
+        // A fixed clock makes timestamp behavior predictable in tests.
         this.clock = Objects.requireNonNull(clock, "clock must not be null");
     }
 

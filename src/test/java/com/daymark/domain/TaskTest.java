@@ -38,6 +38,7 @@ class TaskTest {
     }
 
     @Test
+    //TODO: Might need to test each required field separately, but this is a good start.
     void requiredFieldsRejectNull() {
         Instant now = Instant.parse("2026-08-18T15:00:00Z");
 
