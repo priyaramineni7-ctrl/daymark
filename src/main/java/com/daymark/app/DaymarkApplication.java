@@ -47,10 +47,11 @@ public final class DaymarkApplication extends Application {
         stage.setMinWidth(760);
         stage.setMinHeight(520);
         stage.setScene(scene);
-        stage.show();
-        stage.focusedProperty().addListener((observable, wasFocused, focused) -> {
-            if (focused) browser.refresh();
+        stage.setOnCloseRequest(event -> {
+            if (!browser.requestClose()) event.consume();
         });
+        stage.show();
+        // Refresh is explicit so returning from an editor doesn't erase the save feedback.
     }
 
     @Override
