@@ -7,7 +7,9 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.HBox;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
 import java.time.LocalDate;
 import java.util.function.Consumer;
@@ -25,6 +27,11 @@ final class TaskEditor extends Dialog<Void> {
         setTitle(task == null ? "New task" : "Edit task");
         setHeaderText(task == null ? "What's next?" : "Update your task");
         setResizable(true);
+        title.setId("task-title");
+        notes.setId("task-notes");
+        due.setId("task-due");
+        priority.setId("task-priority");
+        error.setId("task-error");
         priority.getItems().setAll(Priority.values());
         priority.setValue(task == null ? Priority.MEDIUM : task.priority());
         title.setPromptText("Task title");
@@ -32,6 +39,12 @@ final class TaskEditor extends Dialog<Void> {
         notes.setWrapText(true);
         notes.setPrefRowCount(4);
         due.setPromptText("Optional due date");
+        Button clearDate = new Button("Clear date");
+        clearDate.setId("clear-date");
+        clearDate.setOnAction(event -> {
+            due.setValue(null);
+            due.getEditor().clear();
+        });
         if (task != null) {
             title.setText(task.title());
             notes.setText(task.description());
@@ -40,17 +53,20 @@ final class TaskEditor extends Dialog<Void> {
         error.getStyleClass().add("error-text");
         error.setWrapText(true);
         VBox form = new VBox(10, fieldLabel("Title", title), title, fieldLabel("Notes", notes), notes,
-                fieldLabel("Due date", due), due, fieldLabel("Priority", priority), priority, error);
+                fieldLabel("Due date", due), new HBox(10, due, clearDate), fieldLabel("Priority", priority), priority, error);
         form.setPadding(new Insets(8));
         form.setPrefWidth(420);
         getDialogPane().setContent(form);
-        getDialogPane().getStylesheets().add(owner.getScene().getStylesheets().getFirst());
+        getDialogPane().getStylesheets().setAll(owner.getScene().getStylesheets());
         ButtonType save = new ButtonType("Save task", ButtonBar.ButtonData.OK_DONE);
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, save);
+        getDialogPane().lookupButton(save).setId("save-task");
+        getDialogPane().lookupButton(ButtonType.CANCEL).setId("cancel-task");
         ((Button) getDialogPane().lookupButton(save)).setMinWidth(Region.USE_PREF_SIZE);
         getDialogPane().lookupButton(save).addEventFilter(ActionEvent.ACTION, event -> {
             // Don't close the form until storage succeeds; a failed save shouldn't lose the user's typing.
             event.consume();
+            error.setText("");
             try {
                 due.commitValue();
             } catch (RuntimeException exception) {
@@ -59,7 +75,17 @@ final class TaskEditor extends Dialog<Void> {
             }
             onSave.accept(this);
         });
-        setOnShown(event -> title.requestFocus());
+        setOnCloseRequest(event -> {
+            // Disabling the buttons doesn't disable the title-bar X or Escape.
+            if (getDialogPane().isDisabled()) event.consume();
+        });
+        setOnShown(event -> {
+            // The native window has its own close event, separate from Dialog's Cancel handling.
+            getDialogPane().getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, close -> {
+                if (getDialogPane().isDisabled()) close.consume();
+            });
+            title.requestFocus();
+        });
     }
 
     private Label fieldLabel(String text, Control control) {

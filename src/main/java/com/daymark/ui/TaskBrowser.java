@@ -40,6 +40,8 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
     private final Label feedback = new Label();
     private List<Task> tasks = List.of();
     private TaskView currentView = TaskView.TODAY;
+    private boolean loaded;
+    private boolean loadFailed;
     private boolean closed;
 
     public TaskBrowser(TaskService service, Clock clock) {
@@ -50,6 +52,7 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
         heading.getStyleClass().add("page-title");
         description.getStyleClass().add("muted");
         Button create = new Button("+ New task");
+        create.setId("new-task");
         create.getStyleClass().add("primary-button");
         create.setOnAction(event -> edit(null));
         create.disableProperty().bind(busy);
@@ -58,16 +61,20 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
         HBox header = new HBox(20, new VBox(6, heading, description), spacer, create);
         header.setAlignment(Pos.CENTER_LEFT);
         search.setPromptText("Search titles and notes");
+        search.setId("task-search");
         search.setAccessibleText("Search tasks");
         search.textProperty().addListener((observable, oldValue, newValue) -> render());
         Button refresh = new Button("Refresh");
+        refresh.setId("refresh-tasks");
         refresh.setOnAction(event -> refresh());
         refresh.disableProperty().bind(busy);
         HBox searchBar = new HBox(10, search, refresh);
         HBox.setHgrow(search, Priority.ALWAYS);
         feedback.getStyleClass().add("muted");
+        feedback.setId("browser-feedback");
         feedback.setWrapText(true);
         taskList.setCellFactory(list -> new TaskCell());
+        taskList.setId("task-list");
         taskList.setAccessibleText("Tasks");
         taskList.disableProperty().bind(busy);
         VBox content = new VBox(20, header, searchBar, feedback, taskList);
@@ -89,6 +96,7 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
         ToggleGroup navigation = new ToggleGroup();
         for (TaskView view : TaskView.values()) {
             ToggleButton button = new ToggleButton(view.title());
+            button.setId("view-" + view.name().toLowerCase(java.util.Locale.ROOT));
             button.getStyleClass().add("nav-button");
             button.setMaxWidth(Double.MAX_VALUE);
             button.setToggleGroup(navigation);
@@ -106,11 +114,19 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
     public void refresh() {
         if (busy.get() || closed) return;
         feedback.setText("Loading tasks...");
+        loadFailed = false;
+        render();
         perform(service::findAll, loaded -> {
             tasks = loaded;
+            this.loaded = true;
             feedback.setText("");
             render();
-        }, failure -> feedback.setText("Couldn't load tasks. Use Refresh to try again."));
+        }, failure -> {
+            loadFailed = true;
+            feedback.setText("Couldn't load tasks. Use Refresh to try again."
+                    + (this.loaded ? " Showing the last loaded tasks." : ""));
+            render();
+        });
     }
 
     private void render() {
@@ -118,9 +134,19 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
         description.setText(currentView.description());
         taskList.getItems().setAll(TaskBrowserModel.filter(tasks, currentView, search.getText(), LocalDate.now(clock)));
         boolean searching = !search.getText().isBlank();
-        Label title = new Label(searching ? "No matching tasks" : currentView.emptyTitle());
+        String emptyTitle = searching ? "No matching tasks" : currentView.emptyTitle();
+        String emptyHint = searching ? "Try a different search or choose another view." : currentView.emptyDescription();
+        // A database error isn't evidence that the user has no tasks.
+        if (loadFailed) {
+            emptyTitle = "Tasks couldn't be loaded";
+            emptyHint = "Use Refresh to try again.";
+        } else if (!loaded) {
+            emptyTitle = "Loading tasks...";
+            emptyHint = "Your tasks will appear here shortly.";
+        }
+        Label title = new Label(emptyTitle);
         title.getStyleClass().add("empty-title");
-        Label hint = new Label(searching ? "Try a different search or choose another view." : currentView.emptyDescription());
+        Label hint = new Label(emptyHint);
         hint.getStyleClass().add("muted");
         hint.setWrapText(true);
         VBox empty = new VBox(8, title, hint);
@@ -129,6 +155,7 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
     }
 
     private void edit(Task task) {
+        if (busy.get()) return;
         TaskEditor editor = new TaskEditor(getScene().getWindow(), task, form -> {
             // Read controls on the FX thread before handing the values to the database worker.
             String title = form.taskTitle();
@@ -138,13 +165,13 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
             perform(() -> task == null ? service.createTask(title, notes, due, priority)
                             : service.updateTask(task.id(), title, notes, due, priority),
                     saved -> {
-                        form.close();
                         replace(saved);
+                        form.close();
                     }, failure -> form.showError(messageFor(failure)));
         });
         editor.getDialogPane().disableProperty().bind(busy);
-        editor.showAndWait();
-        editor.getDialogPane().disableProperty().unbind();
+        editor.setOnHidden(event -> editor.getDialogPane().disableProperty().unbind());
+        editor.show();
     }
 
     private void changeStatus(Task task) {
@@ -163,7 +190,9 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
         updated.removeIf(task -> task.id().equals(saved.id()));
         updated.add(saved);
         tasks = List.copyOf(updated);
-        feedback.setText("Task saved.");
+        loaded = true;
+        boolean visible = !TaskBrowserModel.filter(List.of(saved), currentView, search.getText(), LocalDate.now(clock)).isEmpty();
+        feedback.setText(visible ? "Task saved." : "Task saved. It's outside this view or search; you can find it in All Tasks.");
         render();
     }
 
@@ -204,6 +233,15 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
         worker.shutdown();
     }
 
+    public boolean requestClose() {
+        // Let an in-flight save finish before JavaFX shuts down its worker.
+        if (busy.get()) {
+            feedback.setText("Please wait for the current task operation to finish, then close the window.");
+            return false;
+        }
+        return true;
+    }
+
     private final class TaskCell extends ListCell<Task> {
         @Override
         protected void updateItem(Task task, boolean empty) {
@@ -228,9 +266,11 @@ public final class TaskBrowser extends BorderPane implements AutoCloseable {
             words.setMinWidth(0);
             HBox.setHgrow(words, Priority.ALWAYS);
             Button edit = new Button("Edit");
+            edit.setId("edit-" + task.id());
             edit.setAccessibleText("Edit " + task.title());
             edit.setOnAction(event -> edit(task));
             Button status = new Button(task.status() == TaskStatus.ACTIVE ? "Done" : "Reopen");
+            status.setId("status-" + task.id());
             status.setAccessibleText(status.getText() + ": " + task.title());
             status.setOnAction(event -> changeStatus(task));
             HBox row = new HBox(12, words, edit, status);
