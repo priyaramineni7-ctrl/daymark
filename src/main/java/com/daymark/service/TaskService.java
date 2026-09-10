@@ -9,6 +9,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.List;
 import java.util.UUID;
 
 /** Applies task input rules and status changes before passing tasks to storage. */
@@ -41,6 +42,10 @@ public final class TaskService {
                 priority, TaskStatus.ACTIVE, now, now, null);
         // Past dates are allowed: a newly entered task may already be overdue.
         return repository.insert(task);
+    }
+
+    public List<Task> findAll() {
+        return repository.findAll();
     }
 
     /** Replaces the editable fields; null notes or a null due date clear those fields. */
