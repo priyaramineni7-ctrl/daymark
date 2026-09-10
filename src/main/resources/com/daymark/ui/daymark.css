@@ -1,19 +1,43 @@
 .root {
-    -daymark-background: #f6f7f9;
+    -daymark-background: #f7f6f2;
     -daymark-surface: #ffffff;
     -daymark-text: #17202a;
     -daymark-muted: #657181;
-    -daymark-accent: #5268d8;
+    -daymark-accent: #316b60;
     -fx-font-family: "Segoe UI", "Inter", sans-serif;
     -fx-font-size: 14px;
 }
 .app-root {
     -fx-background-color: -daymark-background;
-    -fx-padding: 32px;
 }
 
-.foundation-title {
+.page-title {
     -fx-text-fill: -daymark-text;
-    -fx-font-size: 24px;
-    -fx-font-weight: 600;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
 }
+
+.sidebar { -fx-background-color: #edeae3; -fx-padding: 32 18; }
+.brand { -fx-font-size: 25px; -fx-font-weight: bold; -fx-text-fill: -daymark-accent; -fx-padding: 0 0 32 0; }
+.section-label { -fx-text-fill: -daymark-muted; -fx-font-size: 11px; -fx-font-weight: bold; }
+.nav-button { -fx-background-color: transparent; -fx-alignment: center-left; -fx-padding: 12 14; }
+.nav-button:selected { -fx-background-color: #d7e6df; -fx-text-fill: #204f46; }
+.main-content { -fx-padding: 32; }
+.muted { -fx-text-fill: -daymark-muted; -fx-font-size: 13px; }
+.button, .toggle-button { -fx-cursor: hand; -fx-background-radius: 7; -fx-padding: 9 14; }
+.button { -fx-background-color: #e8ece9; -fx-text-fill: -daymark-text; }
+.button:hover { -fx-background-color: #d7e6df; }
+.primary-button { -fx-background-color: -daymark-accent; -fx-text-fill: white; }
+.primary-button:hover { -fx-background-color: #245449; }
+.button, .toggle-button { -fx-border-color: transparent; -fx-border-radius: 7; }
+.button:focused, .toggle-button:focused { -fx-border-color: -daymark-accent; }
+.text-field, .text-area, .combo-box, .date-picker { -fx-font-size: 14px; }
+.text-field { -fx-padding: 10; }
+.list-view { -fx-background-color: transparent; -fx-padding: 0; }
+.list-view .list-cell { -fx-background-color: transparent; -fx-padding: 0 0 12 0; }
+.list-cell:selected .task-card { -fx-border-color: -daymark-accent; }
+.task-card { -fx-background-color: white; -fx-background-radius: 10; -fx-padding: 18;
+    -fx-border-color: #e4e6e1; -fx-border-radius: 10; }
+.task-title { -fx-text-fill: -daymark-text; -fx-font-weight: bold; -fx-font-size: 15px; }
+.empty-title { -fx-font-size: 21px; -fx-text-fill: -daymark-text; }
+.error-text { -fx-text-fill: #a33030; }
